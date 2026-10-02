@@ -1,61 +1,145 @@
-# Function Calling Student Assistant
+# AI Agent Student Assistant
 
-A small AI assistant that demonstrates **function calling with Gemini**.
+A small educational AI agent built with Python and Google Gemini that demonstrates how an LLM can make decisions, use multiple tools, inspect tool results, and continue working until a task is complete.
 
-The assistant can answer general questions directly, but when a user asks for a specific student's academic result, Gemini can decide to call a custom Python function. The application executes the function, returns the result to Gemini, and Gemini generates the final natural-language response.
+The project builds on the previous function-calling exercise by adding an **agent loop**. Instead of stopping after a single tool call, the agent can decide whether another tool is needed and combine results from multiple tools into one final response.
 
-The project uses fictional student data and does not connect to a real database or external student-information system.
+The project uses fictional university data and does not connect to a real student information system or external university database.
 
 ---
 
 ## 1. Project Overview
 
-This project was created to understand how AI systems can move beyond text generation and interact with application-controlled tools.
+This project was created to understand the basic architecture of an AI agent and how it differs from a standard chatbot or a simple function-calling application.
 
-The assistant provides one custom tool:
+The agent can:
+
+- Answer simple questions without using a tool
+- Look up fictional student academic records
+- Retrieve fictional course information
+- Perform numerical calculations
+- Decide which tool or tools are required
+- Use multiple tools for a single request
+- Inspect tool results and continue the agent loop
+- Combine information from multiple tool calls
+- Clearly report unavailable information instead of inventing results
+
+The project contains three custom tools:
 
 ```text
 get_student_result(student_id)
+get_course_info(course_name)
+calculate_average(value1, value2)
 ```
-
-The tool looks up a fictional student record using a student ID.
-
-The assistant supports:
-
-- Looking up a student's GPA
-- Returning a student's program and semester
-- Answering general questions without using the student-result tool
-- Handling nonexistent student IDs without inventing information
 
 ---
 
-## 2. Learning Goals
+## 2. What Is an AI Agent?
+
+An AI agent is an application in which an LLM can do more than simply generate a response.
+
+A basic chatbot may follow this pattern:
+
+```text
+User
+  ↓
+LLM
+  ↓
+Response
+```
+
+An AI agent can follow a more dynamic process:
+
+```text
+User Task
+    ↓
+LLM
+    ↓
+Decide what action is needed
+    ↓
+Select a tool
+    ↓
+Execute the tool
+    ↓
+Inspect the tool result
+    ↓
+Decide whether another action is needed
+    ↓
+Another tool / Final response
+```
+
+The LLM acts as the decision-making component, while the application controls and executes the available tools.
+
+---
+
+## 3. Chatbot vs AI Agent
+
+### Basic chatbot
+
+A basic chatbot primarily receives a user message and generates a response.
+
+```text
+User → LLM → Response
+```
+
+### AI agent
+
+An AI agent can determine whether it needs to take an action, select an appropriate tool, use the tool, inspect the result, and continue the process.
+
+```text
+User
+ ↓
+LLM
+ ↓
+Tool decision
+ ↓
+Tool execution
+ ↓
+Tool result
+ ↓
+LLM reviews result
+ ↓
+Another action?
+ ↙       ↘
+Yes       No
+ ↓         ↓
+Tool      Final answer
+```
+
+The important difference in this project is that the agent can perform **multiple tool calls for one user request**.
+
+---
+
+## 4. Learning Goals
 
 This project demonstrates:
 
-- The difference between normal text generation and tool calling
-- What a function/tool is in an AI application
-- How an LLM can decide when a tool is needed
-- How an application executes a requested function
-- How tool results are returned to the model
-- How the model uses the tool result to produce a final response
-- Why the application remains responsible for executing available tools
-- How invalid tool input can be handled safely
+- The difference between a chatbot and an AI agent
+- The role of an LLM in agent decision-making
+- The role of tools in extending an LLM's capabilities
+- How an agent decides whether a tool is needed
+- How an application executes a selected tool
+- How tool results are returned to the LLM
+- How the LLM can inspect a tool result
+- How the agent can decide whether another tool is required
+- How multiple tool results can be combined into a final response
+- How an agent handles unavailable information
+- Why application code remains responsible for executing tools
 
 ---
 
-## 3. Technology Stack
+## 5. Technology Stack
 
 - Python
 - Google Gemini API
 - `google-genai`
 - `python-dotenv`
 
-The project uses Gemini's Interactions API for the AI interaction and function-calling flow.
+The application uses Gemini's Interactions API for the model interaction and tool-calling workflow.
 
 ---
 
-## 4. Project Structure
+## 6. Project Structure
 
 ```text
 function-calling-student-assistant/
@@ -72,91 +156,180 @@ The `.env` file and virtual environment are excluded from Git.
 
 ---
 
-## 5. Custom Tool
+## 7. Available Tools
 
-The project defines a local Python function in `student_tools.py`:
+The agent has three fictional tools.
 
-```python
-get_student_result(student_id)
+### 7.1 `get_student_result(student_id)`
+
+Looks up a fictional student record using a student ID.
+
+Example:
+
+```text
+get_student_result("STU-101")
 ```
 
-The function uses a small fictional dataset containing three student records.
+Returns information such as:
 
-### Fictional students
+- Student name
+- Program
+- Semester
+- GPA
+
+---
+
+### 7.2 `get_course_info(course_name)`
+
+Looks up fictional information about a university course.
+
+Example:
+
+```text
+get_course_info("Python")
+```
+
+Returns:
+
+- Course name
+- Course level
+- Course description
+
+---
+
+### 7.3 `calculate_average(value1, value2)`
+
+Calculates the average of two numerical values.
+
+Example:
+
+```text
+calculate_average(3.72, 4.0)
+```
+
+Result:
+
+```text
+3.86
+```
+
+---
+
+## 8. Fictional Student Data
+
+The application uses a small fictional dataset:
 
 | Student ID | Name | Program | Semester | GPA |
 |---|---|---|---:|---:|
 | STU-101 | Ayesha Khan | Computer Science | 4 | 3.72 |
-| STU-102 | Hamza Ali | Software Engineering | 3 | 3.45 |
+| STU-102 | Hamza Khan | Software Engineering | 3 | 3.45 |
 | STU-103 | Sara Ahmed | Information Technology | 5 | 3.88 |
 
-These records are fictional and are included only for demonstrating function calling.
+These records are fictional and are used only for demonstrating the agent architecture.
 
 ---
 
-## 6. How Function Calling Works
+## 9. Fictional Course Data
 
-The application follows this flow:
+The project contains fictional information for several courses:
+
+| Course | Level | Description |
+|---|---|---|
+| Python | Beginner | Introduction to Python programming and problem solving. |
+| Java | Intermediate | Object-oriented programming and Java application development. |
+| Web Development | Beginner | Introduction to HTML, CSS, JavaScript, and web development. |
+
+The agent reports when a requested course is not present in the fictional dataset.
+
+---
+
+## 10. Agent Architecture
+
+The main architecture of the application is:
 
 ```text
-User request
-     ↓
-Gemini receives the request
-     ↓
-Gemini determines whether the custom tool is needed
-     ↓
-If needed:
-Gemini returns a function call and arguments
-     ↓
-Python application executes get_student_result()
-     ↓
-The function result is returned to Gemini
-     ↓
-Gemini generates the final natural-language response
+                    User Request
+                         ↓
+                  ┌─────────────┐
+                  │     LLM     │
+                  │  Decision   │
+                  └──────┬──────┘
+                         ↓
+                Is a tool required?
+                    ↙          ↘
+                  No            Yes
+                  ↓              ↓
+           Final response   Select tool
+                                  ↓
+                            Execute tool
+                                  ↓
+                             Tool result
+                                  ↓
+                         LLM reviews result
+                                  ↓
+                     Another tool required?
+                         ↙             ↘
+                       Yes              No
+                        ↓                ↓
+                   Next tool       Final response
 ```
 
-For a question that does not require the student-result tool, Gemini can answer directly without calling the function.
+The application therefore combines:
 
-The application controls the available tool and executes the function. Gemini does not receive permission to execute arbitrary Python code.
+- User input
+- Instructions
+- LLM
+- Tools
+- Tool results
+- Conversation/interaction state
+- Agent loop
+- Final response
 
 ---
 
-## 7. Tool Definition
+## 11. The Agent Loop
 
-The custom function is exposed to Gemini with a description and a parameter:
+The simplified agent loop implemented by the application is:
 
 ```text
-Tool name:
-get_student_result
-
-Parameter:
-student_id
+1. Receive the user's request
+2. Send the request and available tools to Gemini
+3. Gemini decides whether a tool is required
+4. If no tool is required, return the response
+5. If a tool is required, identify the tool and arguments
+6. Execute the selected Python function
+7. Return the tool result to Gemini
+8. Gemini reviews the result
+9. Gemini decides whether another tool is needed
+10. Repeat if necessary
+11. Return the final answer when the task is complete
 ```
 
-The tool description tells Gemini that the function should be used when the user asks about a specific student's result, GPA, program, or semester.
+The agent has a maximum number of processing steps to prevent an infinite tool-calling loop.
 
 ---
 
-## 8. Test Results
+## 12. Single-Tool Example
 
-The assistant was tested with multiple requests.
-
-### Test 1 — Tool Required
-
-Question:
+For this request:
 
 ```text
 What is the GPA of student STU-101?
 ```
 
-Gemini selected the custom tool:
+The agent selected:
 
 ```text
-Tool called: get_student_result
-Tool arguments: {'student_id': 'STU-101'}
+get_student_result
 ```
 
-The application executed the function and returned:
+with:
+
+```text
+{'student_id': 'STU-101'}
+```
+
+The tool returned:
 
 ```text
 {
@@ -169,92 +342,210 @@ The application executed the function and returned:
 }
 ```
 
-Final AI response:
+The final AI response was:
 
 ```text
 The GPA of student STU-101 (Ayesha Khan) is 3.72.
 ```
 
-This demonstrates the complete tool-calling flow.
+This demonstrates a successful tool-selection and tool-execution cycle.
 
 ---
 
-### Test 2 — Tool Not Required
+## 13. Multi-Tool Agent Example
 
-Question:
+The most important test was:
 
 ```text
-What can you help me with?
+What is STU-101's GPA, what level is the Python course, and what is the average of the student's GPA and 4.0?
 ```
 
-The assistant answered directly.
+The agent used three tools:
 
-There was no:
+### Step 1 — Student lookup
 
 ```text
 Tool called: get_student_result
+Tool arguments: {'student_id': 'STU-101'}
 ```
 
-The AI responded with a general explanation of the tasks it can help with, including student-result lookups, writing, coding, learning, research, brainstorming, and planning.
+Result:
 
-This demonstrates that the custom function is not automatically called for every request.
+```text
+GPA: 3.72
+```
+
+### Step 2 — Course lookup
+
+```text
+Tool called: get_course_info
+Tool arguments: {'course_name': 'Python'}
+```
+
+Result:
+
+```text
+Course level: Beginner
+```
+
+### Step 3 — Calculation
+
+```text
+Tool called: calculate_average
+Tool arguments: {'value1': 3.72, 'value2': 4}
+```
+
+Result:
+
+```text
+Average: 3.86
+```
+
+The final response was:
+
+```text
+Here are the details based on your request:
+
+* STU-101's GPA: 3.72
+* Python Course Level: Beginner
+* Average of the GPA (3.72) and 4.0: 3.86
+```
+
+This demonstrates the main purpose of the project:
+
+```text
+User request
+     ↓
+get_student_result
+     ↓
+Tool result
+     ↓
+get_course_info
+     ↓
+Tool result
+     ↓
+calculate_average
+     ↓
+Tool result
+     ↓
+Final answer
+```
+
+The agent did not require the user to manually request each step. It determined the required tools and combined their results.
 
 ---
 
-### Test 3 — Another Tool Request
+## 14. Test Results
 
-Question:
+The completed implementation was tested with several different types of requests.
+
+### Test 1 — Simple Request
+
+Input:
 
 ```text
-What is the GPA of student STU-103?
+Hello! What can you help me with?
 ```
 
-Gemini selected the custom tool:
+Result:
+
+The agent answered directly and explained that it can help with:
+
+- Student academic records
+- Course information
+- Calculations
+
+No tool was required.
+
+This demonstrates that the agent does not automatically call a tool for every request.
+
+---
+
+### Test 2 — One Tool Required
+
+Input:
 
 ```text
-Tool called: get_student_result
-Tool arguments: {'student_id': 'STU-103'}
+What is the GPA of student STU-101?
 ```
 
-The application returned:
+Tool used:
 
 ```text
-{
-    'success': True,
-    'student_id': 'STU-103',
-    'name': 'Sara Ahmed',
-    'program': 'Information Technology',
-    'semester': 5,
-    'gpa': 3.88
-}
+get_student_result
 ```
 
-Final AI response:
+Result:
 
 ```text
-The GPA of student STU-103 (Sara Ahmed) is 3.88.
+GPA: 3.72
+```
+
+Final response:
+
+```text
+The GPA of student STU-101 (Ayesha Khan) is 3.72.
+```
+
+Status:
+
+```text
+PASS
 ```
 
 ---
 
-## 9. Invalid Input Test
+### Test 3 — Multiple Tools Required
 
-The project was also tested with a nonexistent student ID.
+Input:
 
-Question:
+```text
+What is STU-101's GPA, what level is the Python course, and what is the average of the student's GPA and 4.0?
+```
+
+Tools used:
+
+```text
+get_student_result
+get_course_info
+calculate_average
+```
+
+Results:
+
+```text
+GPA: 3.72
+Python level: Beginner
+Average: 3.86
+```
+
+Final response correctly combined all three results.
+
+Status:
+
+```text
+PASS
+```
+
+This is the primary demonstration of the agent loop.
+
+---
+
+### Test 4 — Unknown Student
+
+Input:
 
 ```text
 What is the GPA of student STU-999?
 ```
 
-Gemini called the tool:
+Tool called:
 
 ```text
-Tool called: get_student_result
-Tool arguments: {'student_id': 'STU-999'}
+get_student_result
 ```
 
-The Python function returned:
+Tool result:
 
 ```text
 {
@@ -263,71 +554,153 @@ The Python function returned:
 }
 ```
 
-The final AI response was:
+Final response:
 
 ```text
-No student record was found for student ID STU-999.
-Please verify the student ID and try again.
+The student record for ID STU-999 could not be found, so their GPA is unavailable.
 ```
 
-The system did not invent a GPA or student record.
+The agent did not invent a GPA.
 
-This demonstrates that the tool result is treated as the source of truth for student records.
-
----
-
-## 10. Error and Rate-Limit Handling
-
-During development, the Gemini Free Tier rate limit was reached.
-
-The API returned a rate-limit error indicating:
+Status:
 
 ```text
-Rate limit exceeded for model gemini-3.8-flash
+PASS
 ```
 
-The assistant was updated with exception handling and a request timeout so that API failures do not leave the application waiting indefinitely.
+---
 
-The current application reports Gemini request failures instead of silently failing.
+### Test 5 — Unknown Course
 
-The Gemini API's availability and limits depend on the selected model and account tier.
+Input:
+
+```text
+Tell me about the Rust course.
+```
+
+Tool called:
+
+```text
+get_course_info
+```
+
+Tool result:
+
+```text
+{
+    'success': False,
+    'message': 'No course information was found for Rust.'
+}
+```
+
+Final response:
+
+```text
+I could not find any information for the Rust course.
+```
+
+The agent did not invent course information.
+
+Status:
+
+```text
+PASS
+```
 
 ---
 
-## 11. Application Responsibility
+## 15. Test Summary
 
-An important part of function calling is that the model does not directly execute arbitrary application code.
-
-In this project:
-
-1. Gemini can request the specific tool that the application exposes.
-2. The Python application receives the requested function and arguments.
-3. The application executes `get_student_result()`.
-4. The application sends the function result back to Gemini.
-5. Gemini generates the final response.
-
-The available function is therefore controlled by the application.
+| Test | Tools Used | Expected Behavior | Result |
+|---|---|---|---|
+| Simple question | None | Answer directly | ✅ Pass |
+| Student GPA | `get_student_result` | Retrieve GPA | ✅ Pass |
+| Multi-step request | 3 tools | Combine multiple results | ✅ Pass |
+| Unknown student | `get_student_result` | Report unavailable | ✅ Pass |
+| Unknown course | `get_course_info` | Report unavailable | ✅ Pass |
 
 ---
 
-## 12. Security Considerations
+## 16. Agent Instructions
 
-The project uses only fictional student information.
+The agent is given instructions that define its responsibility and behavior.
+
+The instructions tell the model to:
+
+- Act as a university student assistant
+- Use available tools when necessary
+- Decide which tool is appropriate
+- Use multiple tools when required
+- Inspect tool results before continuing
+- Avoid inventing student information
+- Avoid inventing course information
+- Report unavailable information clearly
+- Provide a final answer when the task is complete
+
+This helps establish the difference between simply exposing tools and actually operating an agent.
+
+---
+
+## 17. Application Responsibility
+
+The LLM does not directly execute arbitrary Python code.
+
+The application controls the available tools.
+
+The process is:
+
+```text
+1. Gemini decides that a tool is needed
+        ↓
+2. Gemini returns the tool name and arguments
+        ↓
+3. Python receives the tool request
+        ↓
+4. Python executes the approved function
+        ↓
+5. Python returns the tool result
+        ↓
+6. Gemini reviews the result
+        ↓
+7. Gemini decides whether another tool is required
+        ↓
+8. Final response
+```
+
+This separation is important because the application defines exactly what actions the model is allowed to request.
+
+---
+
+## 18. Error Handling
+
+The application includes exception handling around Gemini API requests.
+
+If the Gemini request fails, the application returns an error message instead of silently failing.
+
+The application also uses a request timeout so that an API request does not wait indefinitely.
+
+The agent loop has a maximum number of processing steps to prevent an infinite loop of tool calls.
+
+---
+
+## 19. Security Considerations
+
+This is an educational project using fictional information.
 
 The application does not connect to:
 
 - A real university database
 - A real student information system
-- A payment system
-- An external business database
+- Payment systems
+- External business databases
 
-The Gemini API key is stored in `.env` and is excluded from Git using `.gitignore`.
+The Gemini API key is stored in `.env` and should not be committed to Git.
 
-The application also does not allow Gemini to execute arbitrary Python code. Only the explicitly defined `get_student_result` tool can be invoked.
+The application does not allow Gemini to execute arbitrary Python code. Only the explicitly defined tools are available for the model to request.
 
 ---
 
-## 13. Setup
+## 20. Setup
 
 ### 1. Clone the repository
 
@@ -356,7 +729,7 @@ Activate it:
 pip install google-genai python-dotenv
 ```
 
-### 4. Configure the API key
+### 4. Configure the Gemini API key
 
 Create a `.env` file:
 
@@ -366,23 +739,59 @@ GEMINI_API_KEY=YOUR_API_KEY_HERE
 
 Do not commit the `.env` file.
 
-### 5. Run the assistant
+### 5. Run the agent
 
 ```powershell
 python assistant.py
 ```
 
-Then enter a natural-language request such as:
+The application will prompt:
+
+```text
+You:
+```
+
+You can then enter a natural-language request.
+
+---
+
+## 21. Example Requests
+
+### Simple request
+
+```text
+Hello! What can you help me with?
+```
+
+### One-tool request
 
 ```text
 What is the GPA of student STU-101?
 ```
 
+### Multi-tool request
+
+```text
+What is STU-101's GPA, what level is the Python course, and what is the average of the student's GPA and 4.0?
+```
+
+### Unknown student
+
+```text
+What is the GPA of student STU-999?
+```
+
+### Unknown course
+
+```text
+Tell me about the Rust course.
+```
+
 ---
 
-## 14. Local Tool Testing
+## 22. Local Tool Testing
 
-The student-result function can also be tested without calling Gemini.
+The tools can also be tested independently from the Gemini agent.
 
 For example:
 
@@ -390,100 +799,200 @@ For example:
 python -c "from student_tools import get_student_result; print(get_student_result('STU-999'))"
 ```
 
-The invalid ID returns:
+Expected result:
 
 ```text
-{'success': False, 'message': 'No student record was found for ID STU-999.'}
+{
+    'success': False,
+    'message': 'No student record was found for ID STU-999.'
+}
 ```
 
-This confirms that the local tool handles invalid student IDs independently of the AI model.
+This demonstrates that the application's tool itself handles unavailable data before the result is returned to the model.
 
 ---
 
-## 15. Limitations
+## 23. Limitations
 
-This is a small educational demonstration rather than a production student-information system.
+This is a small educational demonstration rather than a production AI agent platform.
 
 Current limitations include:
 
-- Student data is fictional and stored directly in Python.
-- There is no real database.
-- There is only one custom tool.
-- The tool supports student-result lookup only.
-- The assistant depends on Gemini API availability.
-- Gemini Free Tier usage limits can prevent additional API requests.
-- The system does not implement authentication or authorization.
-- The student ID lookup is based on the predefined fictional records.
+- Student data is fictional
+- Course data is fictional
+- Data is stored directly in Python
+- There is no real database
+- There is no authentication or authorization
+- There are only three tools
+- The tools support a limited set of predefined data
+- The agent depends on Gemini API availability
+- API usage limits can affect requests
+- There is no persistent long-term memory
+- There is no external search or real-world data retrieval
+- The agent loop is intentionally simple
+- The project does not implement production monitoring or observability
 
 ---
 
-## 16. What This Project Demonstrates
+## 24. What This Project Demonstrates
 
-The project demonstrates the difference between:
+The project demonstrates the progression from simple LLM interaction to an AI agent.
 
-### Text generation
-
-The model receives a question and generates an answer directly.
-
-Example:
+### Stage 1 — Text generation
 
 ```text
-What can you help me with?
+User
+ ↓
+LLM
+ ↓
+Response
 ```
 
-No custom tool is required.
+The model answers directly.
 
-### Tool calling
-
-The model determines that external application data is needed.
-
-Example:
+### Stage 2 — Function calling
 
 ```text
-What is the GPA of student STU-101?
-```
-
-Gemini requests:
-
-```text
-get_student_result("STU-101")
-```
-
-The application executes the function and returns the result.
-
-Gemini then uses that result to produce the final answer.
-
----
-
-## 17. Key Learning
-
-The main lesson from this project is that an LLM can decide when a tool is useful, but the application remains responsible for defining and executing the available functions.
-
-The model can request:
-
-```text
-get_student_result(student_id)
-```
-
-but the Python application controls what that function actually does and what information it returns.
-
-This creates a clear separation between:
-
-```text
-AI reasoning
-     ↓
-Tool request
-     ↓
-Application-controlled execution
-     ↓
+User
+ ↓
+LLM
+ ↓
+Tool selection
+ ↓
+Tool execution
+ ↓
 Tool result
-     ↓
-AI response
+ ↓
+LLM
+ ↓
+Response
 ```
+
+The model can request application-controlled functionality.
+
+### Stage 3 — Agent loop
+
+```text
+User
+ ↓
+LLM
+ ↓
+Tool 1
+ ↓
+Result
+ ↓
+LLM
+ ↓
+Tool 2
+ ↓
+Result
+ ↓
+LLM
+ ↓
+Tool 3
+ ↓
+Result
+ ↓
+Final response
+```
+
+The model can continue taking actions until the requested task is complete.
+
+The multi-tool test in this project demonstrates Stage 3.
 
 ---
 
-## 18. Repository
+## 25. Key Learning
+
+The main lesson from this project is that an AI agent combines:
+
+```text
+LLM
++
+Instructions
++
+Tools
++
+Tool results
++
+Interaction state
++
+Agent loop
+```
+
+The LLM provides the decision-making capability, while the application provides controlled actions through tools.
+
+The model can decide:
+
+```text
+"I need student information."
+```
+
+The application then executes:
+
+```text
+get_student_result(...)
+```
+
+The model receives the result and can decide:
+
+```text
+"I also need course information."
+```
+
+The application executes:
+
+```text
+get_course_info(...)
+```
+
+The process continues until the agent has enough information to produce the final response.
+
+This demonstrates why an AI agent is more than a chatbot that simply generates text.
+
+---
+
+## 26. Agent Loop in This Project
+
+The complete flow can be summarized as:
+
+```text
+             USER TASK
+                 ↓
+          Gemini / LLM
+                 ↓
+        Understand the task
+                 ↓
+       Decide required action
+                 ↓
+          Select a tool
+                 ↓
+       Python executes tool
+                 ↓
+          Tool result
+                 ↓
+          Back to Gemini
+                 ↓
+       Inspect the result
+                 ↓
+     Another tool required?
+          ↙           ↘
+        YES            NO
+         ↓              ↓
+   Select next tool   Final answer
+         ↓
+    Execute tool
+         ↓
+     Tool result
+         ↓
+     Back to Gemini
+```
+
+This is the core architecture implemented by the project.
+
+---
+
+## 27. Repository
 
 GitHub repository:
 
@@ -491,19 +1000,45 @@ https://github.com/syeda-ajiya56/function-calling-student-assistant
 
 ---
 
-## 19. Assignment Requirements Checklist
+## 28. Assignment Requirements Checklist
 
-- [x] Create a local custom function
-- [x] Use fictional data
-- [x] Connect the function to an LLM
-- [x] Allow the model to determine when the function is needed
-- [x] Execute the function in the application
-- [x] Return the function result to the model
-- [x] Generate a final natural-language response
-- [x] Test a request requiring the tool
-- [x] Test a request that does not require the tool
-- [x] Test multiple tool requests
-- [x] Test invalid input
-- [x] Prevent invented results for an unknown student
-- [x] Document the function-calling workflow
-- [x] Document limitations and security considerations
+- [x] Learn what an AI agent is
+- [x] Understand the role of the LLM
+- [x] Understand the role of tools
+- [x] Understand the agent loop
+- [x] Build a small AI agent
+- [x] Use at least two tools
+- [x] Add clear agent instructions
+- [x] Allow the agent to decide which tools are required
+- [x] Execute tools through the Python application
+- [x] Return tool results to the LLM
+- [x] Support a request requiring one tool
+- [x] Support a request requiring multiple tools
+- [x] Combine multiple tool results into one answer
+- [x] Test a simple request
+- [x] Test an unsuccessful student lookup
+- [x] Test an unsuccessful course lookup
+- [x] Prevent invented information
+- [x] Document the agent architecture
+- [x] Document the agent loop
+- [x] Document test results
+- [x] Document limitations
+- [x] Document security considerations
+
+---
+
+## 29. Conclusion
+
+This project demonstrates a small but complete AI agent architecture.
+
+The key difference from the previous function-calling implementation is that the application now supports an **agent loop**. Gemini can decide which tools are needed, receive their results, decide whether additional actions are required, and finally combine the collected information into a single response.
+
+The multi-tool test successfully demonstrated this behavior using:
+
+```text
+get_student_result
+get_course_info
+calculate_average
+```
+
+The project therefore provides a practical foundation for understanding how AI agents can connect LLMs with application-controlled tools and multi-step workflows.
